@@ -18,6 +18,17 @@ export const Pages: CollectionConfig = {
       unique: true,
     },
     {
+      name: 'showInNav',
+      type: 'checkbox',
+      label: 'Show in Navigation',
+      defaultValue: true,
+    },
+    {
+      name: 'navOrder',
+      type: 'number',
+      label: 'Navigation Order',
+    },
+    {
       name: 'layout',
       type: 'blocks',
       required: true,

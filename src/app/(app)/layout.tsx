@@ -1,25 +1,33 @@
 import type { ReactNode } from 'react'
 
-import { cn } from '@/lib/utils'
+import './globals.css'
 import { Inter as FontSans } from 'next/font/google'
-import React from 'react'
+import { getNavigation } from "@/lib/getNavigation"
+import { Navigation } from "@/components/navigation"
 
 type LayoutProps = {
   children: ReactNode
 }
 
-import './globals.css'
 
 const fontSans = FontSans({
   subsets: ['latin'],
   variable: '--font-sans',
 })
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = async ({ children }: LayoutProps) => {
+  const navItems = await getNavigation()
+
   return (
     <html lang="en">
-      <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
-        {children}
+      <body>
+        <header className="border-b p-4 flex justify-between items-center">
+          <div className="font-bold">MySite</div>
+          <Navigation items={navItems} />
+        </header>
+        <main className="container mx-auto p-8">
+          {children}
+        </main>
       </body>
     </html>
   )

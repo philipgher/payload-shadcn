@@ -1,6 +1,6 @@
 # Payload with TailwindCSS and shadcn/ui
 
-This is an example repo of Payload being setup with TailwindCSS and shadcn/ui components ready to be used in the admin panel itself.
+This is an example repo of Payload being setup with TailwindCSS and shadcn/ui components ready to be used in the frontend.
 
 Checkout our [tutorial](https://payloadcms.com/blog/how-to-setup-tailwindcss-and-shadcn-ui-in-payload) on our website
 

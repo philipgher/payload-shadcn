@@ -4,9 +4,10 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { Users } from './collections/Users'
-import { Pages } from './collections/Pages'
-import { Media } from './collections/Media'
+import { Users } from './payload/collections/Users'
+import { Pages } from './payload/collections/Pages'
+import { Media } from './payload/collections/Media'
+import { Navigation } from './payload/collections/Navigation'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -19,6 +20,7 @@ export default buildConfig({
     Users,
     Pages,
     Media,
+    Navigation,
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
