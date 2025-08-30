@@ -3,6 +3,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
+import { seoPlugin } from '@payloadcms/plugin-seo'
 
 import { Users } from './payload/collections/Users'
 import { Pages } from './payload/collections/Pages'
@@ -27,6 +28,14 @@ export default buildConfig({
     FooterNav,
   ],
   plugins: [
+    seoPlugin({
+      collections: [
+        'pages',
+      ],
+      uploadsCollection: 'media',
+      generateTitle: ({ doc }) => `Website.com — ${doc.title}`,
+      generateDescription: ({ doc }) => doc.excerpt
+    })
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
