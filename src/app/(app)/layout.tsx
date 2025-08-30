@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import './globals.css'
 import { Inter as FontSans } from 'next/font/google'
-import { getNavigation } from "@/lib/getNavigation"
+import { getMainNavigation } from "@/lib/getNavigation"
 import { Navigation } from "@/components/navigation"
 
 type LayoutProps = {
@@ -16,7 +16,7 @@ const fontSans = FontSans({
 })
 
 const Layout = async ({ children }: LayoutProps) => {
-  const navItems = await getNavigation()
+  const navItems = await getMainNavigation()
 
   return (
     <html lang="en">

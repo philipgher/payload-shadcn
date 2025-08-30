@@ -1,7 +1,7 @@
 // globals/MainNav.ts
 import { GlobalConfig } from "payload"
 
-const MainNav: GlobalConfig = {
+export const MainNav: GlobalConfig = {
   slug: "mainNav",
   label: "Main Navigation",
   access: {
@@ -72,5 +72,3 @@ const MainNav: GlobalConfig = {
     },
   ],
 }
-
-export default MainNav

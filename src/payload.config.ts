@@ -7,7 +7,8 @@ import { fileURLToPath } from 'url'
 import { Users } from './payload/collections/Users'
 import { Pages } from './payload/collections/Pages'
 import { Media } from './payload/collections/Media'
-import { Navigation } from './payload/collections/Navigation'
+import { MainNav } from './payload/globals/main-nav'
+import { FooterNav } from './payload/globals/footer-nav'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -20,7 +21,12 @@ export default buildConfig({
     Users,
     Pages,
     Media,
-    Navigation,
+  ],
+  globals: [
+    MainNav,
+    FooterNav,
+  ],
+  plugins: [
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',

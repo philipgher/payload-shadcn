@@ -1,4 +1,3 @@
-// components/Navigation.tsx
 "use client"
 
 import Link from "next/link"
@@ -11,7 +10,7 @@ import {
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu"
 
-import type { Navigation as NavigationType, Page } from "@/payload-types"
+import type { MainNav as NavigationType } from "@/payload-types"
 
 type Item = NonNullable<NavigationType["items"]>[number]
 type Child = NonNullable<Item["children"]>[number]
