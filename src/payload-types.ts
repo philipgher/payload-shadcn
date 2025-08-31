@@ -152,9 +152,16 @@ export interface User {
 export interface Page {
   id: string;
   title: string;
-  slug: string;
-  showInNav?: boolean | null;
-  navOrder?: number | null;
+  /**
+   * Mark this page as the homepage. Only one page can be homepage.
+   */
+  isHome?: boolean | null;
+  slug?: string | null;
+  /**
+   * Select a parent page to nest this page under. This will affect the page's URL. E.g., selecting 'About' as the parent and setting the slug to 'team' will result in the URL '/about/team'. SEO benefits include better site structure and keyword relevance.
+   */
+  parent?: (string | null) | Page;
+  fullPath?: string | null;
   layout: (
     | {
         heading: string;
@@ -237,13 +244,43 @@ export interface Page {
         blockType: 'faq';
       }
   )[];
-  meta?: {
-    title?: string | null;
-    description?: string | null;
+  meta: {
     /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     * Appears in search engines and browser tabs (recommended under 60 chars).
+     */
+    title: string;
+    /**
+     * Summary shown in search results (recommended under 160 chars).
+     */
+    description: string;
+    /**
+     * Image used in link previews (Facebook, Twitter, etc).
      */
     image?: (string | null) | Media;
+    /**
+     * If left blank, defaults to this page’s URL.
+     */
+    canonicalUrl?: string | null;
+    social?: {
+      /**
+       * Overrides Meta Title for social sharing.
+       */
+      ogTitle?: string | null;
+      /**
+       * Overrides Meta Description for social sharing.
+       */
+      ogDescription?: string | null;
+      twitterCard?: ('summary' | 'summary_large_image') | null;
+    };
+    indexing?: {
+      noIndex?: boolean | null;
+      noFollow?: boolean | null;
+      hideInSitemap?: boolean | null;
+    };
+    sitemap?: {
+      priority?: ('0.0' | '0.3' | '0.5' | '0.7' | '1.0') | null;
+      changefreq?: ('always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never') | null;
+    };
   };
   updatedAt: string;
   createdAt: string;
@@ -355,9 +392,10 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
+  isHome?: T;
   slug?: T;
-  showInNav?: T;
-  navOrder?: T;
+  parent?: T;
+  fullPath?: T;
   layout?:
     | T
     | {
@@ -441,6 +479,27 @@ export interface PagesSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
+        canonicalUrl?: T;
+        social?:
+          | T
+          | {
+              ogTitle?: T;
+              ogDescription?: T;
+              twitterCard?: T;
+            };
+        indexing?:
+          | T
+          | {
+              noIndex?: T;
+              noFollow?: T;
+              hideInSitemap?: T;
+            };
+        sitemap?:
+          | T
+          | {
+              priority?: T;
+              changefreq?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;
