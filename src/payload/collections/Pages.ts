@@ -1,3 +1,4 @@
+import { canEditOwn, checkRole } from '@/lib/access';
 import { Page } from '@/payload-types'
 import type { CollectionConfig } from 'payload'
 
@@ -5,6 +6,12 @@ export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
     useAsTitle: 'title',
+  },
+  access: {
+    read: () => true, // public
+    create: checkRole(["admin", "editor", "author"]),
+    update: canEditOwn(["author"]),
+    delete: checkRole(["admin"]),
   },
   fields: [
     {
@@ -442,6 +449,18 @@ export const Pages: CollectionConfig = {
               ],
             },
           ],
+        },
+        {
+          label: 'Author',
+          fields: [
+            {
+              name: "author",
+              type: "relationship",
+              relationTo: "users",
+              required: true,
+              defaultValue: ({ user }) => user?.id,
+            },
+          ]
         }
       ]
     },
