@@ -87,10 +87,12 @@ export interface Config {
     defaultIDType: string;
   };
   globals: {
+    settings: Setting;
     mainNav: MainNav;
     footerNav: FooterNav;
   };
   globalsSelect: {
+    settings: SettingsSelect<false> | SettingsSelect<true>;
     mainNav: MainNavSelect<false> | MainNavSelect<true>;
     footerNav: FooterNavSelect<false> | FooterNavSelect<true>;
   };
@@ -555,6 +557,32 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings".
+ */
+export interface Setting {
+  id: string;
+  siteName: string;
+  /**
+   * Appended to all page titles (e.g. “| My Company”)
+   */
+  titleSuffix?: string | null;
+  /**
+   * Used for canonical URLs and SEO (e.g. https://example.com)
+   */
+  domain: string;
+  /**
+   * Shown in browser tabs and search results
+   */
+  favicon?: (string | null) | Media;
+  /**
+   * Used when a page doesn’t set its own SEO image
+   */
+  defaultOGImage?: (string | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "mainNav".
  */
 export interface MainNav {
@@ -606,6 +634,20 @@ export interface FooterNav {
     | null;
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "settings_select".
+ */
+export interface SettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  titleSuffix?: T;
+  domain?: T;
+  favicon?: T;
+  defaultOGImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

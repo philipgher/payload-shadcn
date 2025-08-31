@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url'
 import { Users } from './payload/collections/Users'
 import { Pages } from './payload/collections/Pages'
 import { Media } from './payload/collections/Media'
+
+import { Settings } from './payload/globals/settings'
 import { MainNav } from './payload/globals/main-nav'
 import { FooterNav } from './payload/globals/footer-nav'
 
@@ -23,19 +25,11 @@ export default buildConfig({
     Media,
   ],
   globals: [
+    Settings,
     MainNav,
     FooterNav,
   ],
   plugins: [
-    // seoPlugin({
-    //   collections: [
-    //     'pages',
-    //   ],
-    //   tabbedUI: true,
-    //   uploadsCollection: 'media',
-    //   generateTitle: ({ doc }) => `Website.com — ${doc.title}`,
-    //   generateDescription: ({ doc }) => doc.excerpt
-    // })
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',

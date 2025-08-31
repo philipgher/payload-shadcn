@@ -33,13 +33,17 @@ export const Pages: CollectionConfig = {
               name: 'slug',
               type: 'text',
               required: true,
+              hasMany: false,
               validate: (slug, { data }) => {
-                if (data?.isHome) return true; // skip validation if homepage
+                const typedData = data as Partial<Page>
+                if (typedData?.isHome) return true; // skip validation if homepage
                 if (slug === 'admin' || slug === 'api' || slug === 'static' || slug === 'graphql') {
                   return 'This slug is reserved.';
                 }
-                if (slug.includes('/')) {
-                  return 'Slug cannot contain slashes.';
+                // Forbidden characters: slashes, spaces, ?, #, %, &, +, :, ;, ", <, >, \, |, *, ', `
+                const forbiddenPattern = /[\/\s\?#%&\+:;"<>\\|\*'`]/;
+                if (slug && forbiddenPattern.test(slug)) {
+                  return 'Slug contains forbidden characters: / ? # % & + : ; " < > \\ | * \' ` or spaces.';
                 }
                 return true;
               },
@@ -57,11 +61,12 @@ export const Pages: CollectionConfig = {
                 description: "Select a parent page to nest this page under. This will affect the page's URL. E.g., selecting 'About' as the parent and setting the slug to 'team' will result in the URL '/about/team'. SEO benefits include better site structure and keyword relevance.",
               },
               validate: (parent, { data }) => {
-                if (data?.isHome && parent) {
+                const typedData = data as Partial<Page>
+                if (typedData?.isHome && parent) {
                   return 'The homepage cannot have a parent.';
                 }
 
-                if (parent && parent === data.id) {
+                if (parent && parent === typedData.id) {
                   return 'A page cannot be its own parent.';
                 }
                 return true;
@@ -340,8 +345,10 @@ export const Pages: CollectionConfig = {
               },
               hooks: {
                 beforeChange: [
-                  async ({ data, value }) =>
-                    !value ? `https://example.com/${data?.slug}` : value,
+                  async ({ data, value, req }) => {
+                    const settings = await req.payload.findGlobal({ slug: 'settings' })
+                    return !value ? `${settings.domain}/${data?.slug}` : value
+                  }
                 ],
               },
             },
@@ -465,6 +472,32 @@ export const Pages: CollectionConfig = {
         }
 
         return data
+      },
+    ],
+
+    afterChange: [
+      async ({ doc, req }) => {
+        // When a page changes, update children recursively
+        const children = await req.payload.find({
+          collection: "pages",
+          where: { parent: { equals: doc.id } },
+          limit: 1000, // adjust if you expect more
+        })
+
+        for (const child of children.docs) {
+          const newFullPath = `${doc.fullPath}/${child.slug}`
+
+          // Only update if changed (avoid infinite loops)
+          if (child.fullPath !== newFullPath) {
+            await req.payload.update({
+              collection: "pages",
+              id: child.id,
+              data: {
+                fullPath: newFullPath,
+              },
+            })
+          }
+        }
       },
     ],
   },

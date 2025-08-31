@@ -6,14 +6,15 @@ import config from '@payload-config'
 import { Metadata } from "next"
 import { Media } from "@/payload-types"
 
-async function getPage(slug: string) {
+async function getPage(slug: string[]) {
   const payload = await getPayload({ config })
+  const path = slug ? `${slug.join("/")}` : "/"
 
   const data = await payload.find({
     collection: "pages",
     where: {
-      slug: {
-        equals: slug,
+      fullPath: {
+        equals: path,
       },
     },
   })
@@ -22,7 +23,7 @@ async function getPage(slug: string) {
 }
 
 type PageProps = {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string[] }>
 }
 
 export default async function Page({
@@ -57,29 +58,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const slug = (await params).slug;
   const { data: page, error } = await unwrapPromise(getPage(slug))
 
-  if (!page) return {}
+  const payload = await getPayload({ config })
+  const settings = await payload.findGlobal({ slug: "settings" })
 
-  const siteName = "My Site"
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
-  const url = page.meta?.canonicalUrl || `${baseUrl}/${page.slug}`
+  const siteName = settings.siteName || "My Website"
+  const baseUrl = settings.domain || "https://example.com"
+  const url = page?.meta?.canonicalUrl || `${baseUrl}/${page?.slug}`
 
   return {
-    title: page.meta?.title || page.title,
-    description: page.meta?.description,
+    title: `${page?.meta?.title || page?.title} ${settings.titleSuffix}`,
+    description: page?.meta?.description,
+    icons: {
+      icon: settings?.favicon
+        ? `${settings.domain}/media/${settings.favicon}`
+        : "/favicon.ico",
+    },
     alternates: {
       canonical: url,
     },
     robots: {
-      index: !page.meta.indexing?.noIndex,
-      follow: !page.meta?.indexing?.noFollow,
+      index: !page?.meta.indexing?.noIndex,
+      follow: !page?.meta?.indexing?.noFollow,
     },
     openGraph: {
-      title: page.meta?.title || page.title,
-      description: page.meta?.description,
+      title: page?.meta?.title || page?.title,
+      description: page?.meta?.description,
       url,
       siteName,
       type: "website",
-      images: page.meta?.image ? [
+      images: page?.meta?.image ? [
         {
           url: imageUrlOrImageObject(page.meta.image),
           alt: imageUrlOrImageObject(page.meta.image)
@@ -88,9 +95,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: page.meta?.title || page.title,
-      description: page.meta?.description,
-      images: page.meta?.image ? [imageUrlOrImageObject(page.meta.image)] : [],
+      title: page?.meta?.title || page?.title,
+      description: page?.meta?.description,
+      images: page?.meta?.image ? [imageUrlOrImageObject(page.meta.image)] : [],
     },
   }
 }
