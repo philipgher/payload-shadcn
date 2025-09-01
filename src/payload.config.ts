@@ -18,6 +18,15 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   admin: {
     user: Users.slug,
+    livePreview: {
+      collections: ['pages'],
+      url: async ({ data, req }) => {
+        const settings = await req.payload.findGlobal({ slug: 'settings' })
+        const domain = settings.domain
+        const path = data.fullPath
+        return `${domain}/api/preview?slug=${path}`
+      }
+    }
   },
   collections: [
     Users,

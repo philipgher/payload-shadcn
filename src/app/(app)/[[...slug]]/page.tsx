@@ -5,8 +5,10 @@ import { getPayload } from "payload"
 import config from '@payload-config'
 import { Metadata } from "next"
 import { Media } from "@/payload-types"
+import { draftMode } from "next/headers"
 
 async function getPage(slug: string[]) {
+  const { isEnabled } = await draftMode()
   const payload = await getPayload({ config })
   const path = slug ? `${slug.join("/")}` : "/"
 
@@ -17,6 +19,7 @@ async function getPage(slug: string[]) {
         equals: path,
       },
     },
+    draft: isEnabled,
   })
 
   return data.docs?.[0] || null
@@ -62,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const settings = await payload.findGlobal({ slug: "settings" })
 
   const siteName = settings.siteName || "My Website"
-  const baseUrl = settings.domain || "https://example.com"
+  const baseUrl = settings.domain
   const url = page?.meta?.canonicalUrl || `${baseUrl}/${page?.slug}`
 
   return {
