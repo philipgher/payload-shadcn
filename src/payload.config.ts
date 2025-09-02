@@ -3,7 +3,8 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
-import { s3Storage } from "@payloadcms/storage-s3";
+import { s3Storage } from '@payloadcms/storage-s3';
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 
 import { Users } from './payload/collections/Users'
 import { Pages } from './payload/collections/Pages'
@@ -12,16 +13,11 @@ import { Media } from './payload/collections/Media'
 import { Settings } from './payload/globals/settings'
 import { MainNav } from './payload/globals/main-nav'
 import { FooterNav } from './payload/globals/footer-nav'
+import { Forms } from './payload/collections/Forms'
+import { FormSubmissions } from './payload/collections/FormSubmissions'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-
-if (!process.env.S3_BUCKET) throw new Error('S3_BUCKET environment variable is not defined');
-if (!process.env.S3_ACCESS_KEY_ID) throw new Error('S3_ACCESS_KEY_ID environment variable is not defined');
-if (!process.env.S3_SECRET_ACCESS_KEY) throw new Error('S3_SECRET_ACCESS_KEY environment variable is not defined');
-if (!process.env.S3_REGION) throw new Error('S3_REGION environment variable is not defined');
-if (!process.env.DATABASE_URI) throw new Error('DATABASE_URI environment variable is not defined');
-if (!process.env.PAYLOAD_SECRET) throw new Error('PAYLOAD_SECRET environment variable is not defined');
 
 export default buildConfig({
   admin: {
@@ -40,6 +36,8 @@ export default buildConfig({
     Users,
     Pages,
     Media,
+    Forms,
+    FormSubmissions,
   ],
   globals: [
     Settings,
@@ -62,16 +60,35 @@ export default buildConfig({
         //   },
         // },
       },
-      bucket: process.env.S3_BUCKET,
+      bucket: process.env.S3_BUCKET || '',
       config: {
         credentials: {
-          accessKeyId: process.env.S3_ACCESS_KEY_ID,
-          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
         },
         region: process.env.S3_REGION,
       },
     }),
   ],
+  email: nodemailerAdapter({
+    defaultFromAddress: 'info@payloadcms.com',
+    defaultFromName: 'Payload',
+    // Nodemailer transportOptions
+    transportOptions: {
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT) || 1025,
+      // Mailhog doesn't use TLS
+      secure: process.env.SMTP_USER && process.env.SMTP_PASS ? true : false,
+      ...(process.env.SMTP_USER && process.env.SMTP_PASS
+        ? {
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        }
+        : {}),
+    },
+  }),
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

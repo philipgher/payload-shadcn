@@ -21,3 +21,9 @@ services:
       MINIO_ROOT_PASSWORD: minio123
     volumes:
       - ./minio-data:/data
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025" # web ui
+      - "587:1025" # smtp server

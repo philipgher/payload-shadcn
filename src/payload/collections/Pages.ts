@@ -288,6 +288,19 @@ export const Pages: CollectionConfig = {
                     },
                   ],
                 },
+                {
+                  slug: "form",
+                  labels: { singular: "Form", plural: "Forms" },
+                  fields: [
+                    {
+                      name: "form",
+                      type: "relationship",
+                      relationTo: "forms",
+                      required: true,
+                    },
+                  ],
+                },
+
               ],
             },
           ]
