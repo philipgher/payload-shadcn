@@ -63,6 +63,14 @@ export function FormBlock({ form }: { form: any }) {
           </div>
         );
       })}
+      {/* Honeypot field */}
+      <input
+        type="text"
+        name="newsletter_input"
+        autoComplete="off"
+        style={{ display: "none" }}
+        tabIndex={-1}
+      />
 
       <Button type="submit" disabled={submitting}>
         {submitting ? "Submitting..." : "Submit"}

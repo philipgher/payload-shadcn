@@ -1,9 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@payload-config";
 
-export async function POST(req: Request) {
+// Improve this with a distributed cache (e.g. Redis)
+import { LRUCache } from "lru-cache"
+
+const rateLimit = new LRUCache<string, number>({
+  max: 500, // track up to 500 IPs
+  ttl: 1000 * 60, // 1 minute
+})
+
+export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for") || "unknown"
+  const hits = rateLimit.get(ip) || 0
+
+  if (hits > 5) {
+    return NextResponse.json({ error: "Too many submissions" }, { status: 429 })
+  }
+
+  rateLimit.set(ip, hits + 1)
+
   const body = await req.json();
+
+  // Honeypot detection
+  if (body.newsletter_input) {
+    return NextResponse.json({ success: false }, { status: 400 });
+  }
+
   const payload = await getPayload({ config });
 
   // Store submission
