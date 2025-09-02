@@ -285,6 +285,7 @@ export interface Page {
       changefreq?: ('always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never') | null;
     };
   };
+  author: string | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -505,6 +506,7 @@ export interface PagesSelect<T extends boolean = true> {
               changefreq?: T;
             };
       };
+  author?: T;
   updatedAt?: T;
   createdAt?: T;
 }

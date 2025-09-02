@@ -104,3 +104,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
   }
 }
+
+export const revalidate = 60 * 60 // (60 minutes)

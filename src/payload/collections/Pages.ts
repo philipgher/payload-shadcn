@@ -1,4 +1,5 @@
 import { canEditOwn, checkRole } from '@/lib/access';
+import { revalidate } from '@/lib/revalidate';
 import { Page } from '@/payload-types'
 import type { CollectionConfig } from 'payload'
 
@@ -495,16 +496,18 @@ export const Pages: CollectionConfig = {
     ],
 
     afterChange: [
+      // When a page changes, update children recursively
       async ({ doc, req }) => {
-        // When a page changes, update children recursively
+        const typedDoc = doc as Page
+
         const children = await req.payload.find({
           collection: "pages",
-          where: { parent: { equals: doc.id } },
+          where: { parent: { equals: typedDoc.id } },
           limit: 1000, // adjust if you expect more
         })
 
         for (const child of children.docs) {
-          const newFullPath = `${doc.fullPath}/${child.slug}`
+          const newFullPath = `${typedDoc.fullPath}/${child.slug}`
 
           // Only update if changed (avoid infinite loops)
           if (child.fullPath !== newFullPath) {
@@ -518,6 +521,20 @@ export const Pages: CollectionConfig = {
           }
         }
       },
+
+      // When a page changes, revalidate
+      async ({ doc }) => {
+        const typedDoc = doc as Page
+        if (!typedDoc.fullPath) return
+        await revalidate(typedDoc.fullPath)
+      },
     ],
+
+    afterDelete: [
+      // When page is deleted, purge cache
+      async ({ doc }) => {
+        await revalidate('/')
+      }
+    ]
   },
 }

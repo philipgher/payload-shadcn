@@ -6,4 +6,5 @@ export const FooterNav: GlobalConfig = {
   slug: "footerNav",
   label: "Footer Navigation",
   fields: MainNav.fields, // reuse same structure
+  hooks: MainNav.hooks,
 }

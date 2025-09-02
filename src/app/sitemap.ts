@@ -22,3 +22,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: p.meta?.sitemapPriority || 0.5,
     }))
 }
+
+export const revalidate = 60

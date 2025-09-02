@@ -1,4 +1,5 @@
 // globals/MainNav.ts
+import { revalidate } from "@/lib/revalidate"
 import { GlobalConfig } from "payload"
 
 export const MainNav: GlobalConfig = {
@@ -71,4 +72,12 @@ export const MainNav: GlobalConfig = {
       ],
     },
   ],
+  hooks: {
+    afterChange: [
+      // When nav is changed, purge cache (all pages affected)
+      async ({ doc }) => {
+        await revalidate('/')
+      }
+    ]
+  }
 }
