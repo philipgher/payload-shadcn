@@ -3,6 +3,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
+import { s3Storage } from "@payloadcms/storage-s3";
 
 import { Users } from './payload/collections/Users'
 import { Pages } from './payload/collections/Pages'
@@ -14,6 +15,13 @@ import { FooterNav } from './payload/globals/footer-nav'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+if (!process.env.S3_BUCKET) throw new Error('S3_BUCKET environment variable is not defined');
+if (!process.env.S3_ACCESS_KEY_ID) throw new Error('S3_ACCESS_KEY_ID environment variable is not defined');
+if (!process.env.S3_SECRET_ACCESS_KEY) throw new Error('S3_SECRET_ACCESS_KEY environment variable is not defined');
+if (!process.env.S3_REGION) throw new Error('S3_REGION environment variable is not defined');
+if (!process.env.DATABASE_URI) throw new Error('DATABASE_URI environment variable is not defined');
+if (!process.env.PAYLOAD_SECRET) throw new Error('PAYLOAD_SECRET environment variable is not defined');
 
 export default buildConfig({
   admin: {
@@ -39,6 +47,30 @@ export default buildConfig({
     FooterNav,
   ],
   plugins: [
+    s3Storage({
+      collections: {
+        media: true,
+        // 'media-with-prefix': {
+        //   prefix,
+        // },
+        // 'media-with-presigned-downloads': {
+        //   // Filter only mp4 files
+        //   signedDownloads: {
+        //     shouldUseSignedURL: ({ collection, filename, req }) => {
+        //       return filename.endsWith('.mp4')
+        //     },
+        //   },
+        // },
+      },
+      bucket: process.env.S3_BUCKET,
+      config: {
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+        },
+        region: process.env.S3_REGION,
+      },
+    }),
   ],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || '',
